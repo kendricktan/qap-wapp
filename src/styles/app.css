@@ -1,0 +1,10 @@
+code { 
+    font-size: 90%;
+    line-height: 1.1em;
+    font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+
+    display: inline; 
+    color: #555555;
+    padding: 0.05em 0.5em;
+    background: #f4f4f4;
+}

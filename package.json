@@ -2,11 +2,13 @@
   "name": "qap-wapp",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {    
+  "dependencies": {
     "material-ui": "^0.19.4",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
-    "react-scripts": "1.0.17"
+    "react-flexbox-grid": "^2.0.0",
+    "react-scripts": "1.0.17",
+    "recharts": "^1.0.0-beta.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "A Visual Anatomy of Quadratic Arithmetic Programs",
+  "name": "Web App to visually demonstrate the construction of a QAP",
   "icons": [
     {
       "src": "favicon.ico",

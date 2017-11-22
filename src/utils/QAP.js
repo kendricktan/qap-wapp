@@ -123,20 +123,16 @@ const createSolutionPolynomials = (r: polynomial, newA: matrix, newB: matrix, ne
     return [Apoly, Bpoly, Cpoly, H]
 }
 
-var r = [1, 3, 35, 9, 27, 31]
-var A = [[0, 1, 0, 0, 0, 0],
-[0, 0, 0, 1, 0, 0],
-[0, 1, 0, 0, 1, 0],
-[5, 0, 0, 0, 0, 1]]
-var B = [[0, 1, 0, 0, 0, 0],
-[0, 1, 0, 0, 0, 0],
-[1, 0, 0, 0, 0, 0],
-[1, 0, 0, 0, 0, 0]]
-var C = [[0, 0, 0, 1, 0, 0],
-[0, 0, 0, 0, 1, 0],
-[0, 0, 0, 0, 0, 1],
-[0, 0, 1, 0, 0, 0]]
-var [Ap, Bp, Cp, Z] = r1csToQap(A, B, C)
-var [AP, BP, CP, H] = createSolutionPolynomials(r, Ap, Bp, Cp)
-console.log(divPoly(H, Z))
-// console.log(Ap, Bp, Cp)
+export {
+    zipLongest,
+    evalPoly,
+    addPoly,
+    subtractPoly,
+    multiplyPoly,
+    divPoly,
+    createSolutionPolynomials,
+    r1csToQap,
+    mkSingleton,
+    transpose,
+    lagrangeInterpolation
+}

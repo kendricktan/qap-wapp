@@ -100,7 +100,7 @@ const r1csToQap = (A: matrix, B: matrix, C: matrix): [matrix, matrix, matrix, po
 
     // Z = (x - 1) * (x - 2) ... (x - N) where N is the length of the polynomial
     const Z: polynomial = Array.from({length: transpose(A)[0].length}, (_, i) => i + 1)
-                   .reduce((acc, x) => multiplyPoly(acc, [-x, 1]), [1])
+                               .reduce((acc, x) => multiplyPoly(acc, [-x, 1]), [1])
     
     return [newA, newB, newC, Z]
 }

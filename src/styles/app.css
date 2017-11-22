@@ -8,3 +8,10 @@ code {
     padding: 0.05em 0.5em;
     background: #f4f4f4;
 }
+
+hr {
+    width: 90%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #555555;
+}

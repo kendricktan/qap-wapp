@@ -266,6 +266,14 @@ class R1CSToQAPCard extends Component {
               </Row>              
             </Col>
             <Col xs={6}>
+              <Row middle="xs">
+                <Col xs={2}>A =</Col>
+                <Col xs={1} style={{fontSize: '60px', textAlign: 'right'}}>[</Col>
+                <Col xs={8}>
+                  { displayMatrix([[15.22,2.34, 3.45],[62.00,74.88,8.88],[11.12,12.23,13.14]]) }
+                </Col>
+                <Col xs={1} style={{fontSize: '60px', textAlign: 'left'}}>]</Col>
+              </Row>
             </Col>
           </Row>
         </CardText>

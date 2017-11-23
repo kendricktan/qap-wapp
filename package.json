@@ -8,6 +8,7 @@
     "react-dom": "^16.1.1",
     "react-flexbox-grid": "^2.0.0",
     "react-scripts": "1.0.17",
+    "react-sortable-hoc": "^0.6.8",
     "recharts": "^1.0.0-beta.2"
   },
   "scripts": {
@@ -20,6 +21,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.2",
+    "eslint": "^4.11.0",
     "eslint-plugin-flowtype": "^2.39.1",
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.59.0"

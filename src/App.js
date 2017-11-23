@@ -2,12 +2,26 @@ import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar'
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 import { Grid, Row, Col } from 'react-flexbox-grid';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import FlatButton from 'material-ui/FlatButton';
 import Toggle from 'material-ui/Toggle';
 import logo from './assets/logo.svg';
 import TextField from 'material-ui/TextField';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "./styles/app.css"
+
+// Prevents browser from selecting text
+// When reorganizing mappings
+const noSelectStyle = {
+  webkitTouchCallout: 'none', /* iOS Safari */
+  webkitUserSelect: 'none', /* Safari */
+  khtmlUserSelect: 'none', /* Konqueror HTML */
+  mozUserSelect: 'none', /* Firefox */
+  msUserSelect: 'none', /* Internet Explorer/Edge */
+  userSelect: 'none', /* Non-prefixed version, currently */
+  padding: '5px 10px 5px 10px',
+  cursor: 'pointer'
+}
 
 const data = [
   { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
@@ -26,10 +40,10 @@ const displayVector = (v) => {
 const displayEquation = (a, b) => {
   // Where a = b
   return (
-    <Row center='xs' style={{fontFamily: 'monospace'}}>
-      <Col xs={4} style={{textAlign: 'right'}}>{a}</Col>
-      <Col xs={1} style={{textAlign: 'center'}}>=</Col>
-      <Col xs={4} style={{textAlign: 'left'}}>{b}</Col>
+    <Row center='xs' style={{ fontFamily: 'monospace' }}>
+      <Col xs={4} style={{ textAlign: 'right' }}>{a}</Col>
+      <Col xs={1} style={{ textAlign: 'center' }}>=</Col>
+      <Col xs={4} style={{ textAlign: 'left' }}>{b}</Col>
     </Row>
   )
 }
@@ -90,13 +104,38 @@ class FlattenCard extends Component {
   }
 }
 
-class GatesVariableMappingCard extends Component {
+
+const SortableItem = SortableElement(({ value }) =>
+  <span style={noSelectStyle}>{value}</span>
+);
+
+const SortableVector = SortableContainer(({ items }) => {
+  return (
+    <div>
+      [&nbsp;{items.map((value, index) => (
+        <SortableItem key={`item-${index}`} index={index} value={value} />
+      ))}&nbsp;]
+    </div>
+  );
+});
+
+class VariableMappingCard extends Component {
+  state = {
+    items: ['out', 'sym_1', 'y', 'sym_2', 'sym_3'],
+  };
+
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    this.setState({
+      items: arrayMove(this.state.items, oldIndex, newIndex),
+    });
+  };
+
   render() {
     return (
       <Card>
         <CardTitle
-          title="Gates' Variable Mapping"
-          subtitle="The sequence of variable mapping defines the layout of vectors used in the R1CS."
+          title="Variable Mapping"
+          subtitle="The sequence of variable mapping defines the layout of vectors used in the R1CS.  (Drag and drop to reorganize and see changes propagate)"
           actAsExpander={true}
           showExpandableButton={true}
         />
@@ -104,21 +143,19 @@ class GatesVariableMappingCard extends Component {
           For more information, check out <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's Post</a> under the section <strong>'Gates to R1CS'</strong>
         </CardText>
         <CardText style={vectorDisplayStyle}>
-          {
-            displayVector(['ones', 'sym_1', 'y', 'sym_2', 'out'])
-          }
+          <SortableVector items={this.state.items} onSortEnd={this.onSortEnd} axis='x' />
         </CardText>
       </Card>
     )
   }
 }
 
-class GatesDefinitionCard extends Component {
+class GatesToR1CSCard extends Component {
   render() {
     return (
       <Card>
         <CardTitle
-          title="Defining the Gates of the R1CS"
+          title="Gates to R1CS"
           subtitle="Each gate poses as a constraint to the R1CS that our solution needs to satisfy."
           actAsExpander={true}
           showExpandableButton={true}
@@ -127,68 +164,50 @@ class GatesDefinitionCard extends Component {
           The R1CS is a group of 3 vectors <code>A, B, C</code>. And the solution to an R1CS vector is <code>S</code>, where <code>S</code> must satisfy the equation:
           <ul>
             <li><code>(S . A) * (S . B) - (S . C) = 0</code></li>
-          </ul>          
+          </ul>
         </CardText>
         <CardText>
-          <Row style={{fontSize: '25px', textAlign: 'center'}}>
+          <Row style={{ fontSize: '25px', textAlign: 'center' }}>
             <Col xs={6}>Vector</Col>
             <Col xs={6}>Expression</Col>
-          </Row><br/>
-          <hr/>          
+          </Row><br />
+          <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
-            <Col xs={6}>              
-              A = {displayVector([0, 0, 0, 0, 1])}<br/>
-              B = {displayVector([0, 0, 0, 0, 1])}<br/>
-              C = {displayVector([0, 0, 0, 0, 1])}<br/>
+            <Col xs={6}>
+              A = {displayVector([0, 0, 0, 0, 1])}<br />
+              B = {displayVector([0, 0, 0, 0, 1])}<br />
+              C = {displayVector([0, 0, 0, 0, 1])}<br />
             </Col>
             <Col xs={6}>
-              { displayEquation('x', '1') } <br/>
-              { displayEquation('sym_1', 'x + 1')}
+              {displayEquation('x', '1')} <br />
+              {displayEquation('sym_1', 'x + 1')}
             </Col>
           </Row>
-          <hr/>
+          <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
-            <Col xs={6}>              
-              A = {displayVector([1, 0, 0, 0, 5])}<br/>
-              B = {displayVector([0, 0, 0, 0, 1])}<br/>
-              C = {displayVector([0, 0, 0, 0, 1])}<br/>
+            <Col xs={6}>
+              A = {displayVector([1, 0, 0, 0, 5])}<br />
+              B = {displayVector([0, 0, 0, 0, 1])}<br />
+              C = {displayVector([0, 0, 0, 0, 1])}<br />
             </Col>
             <Col xs={6}>
-              { displayEquation('x', '2') } <br/>
-              { displayEquation('A1', '5 * sym_1') }
-              { displayEquation('A', '1 + A1') }
-              { displayEquation('sym_1', 'A * y') }
+              {displayEquation('x', '2')} <br />
+              {displayEquation('A1', '5 * sym_1')}
+              {displayEquation('A', '1 + A1')}
+              {displayEquation('sym_1', 'A * y')}
             </Col>
           </Row>
-          <hr/>
-        </CardText>        
-        <CardText>
-          <Row center="xs">
-            <Col xs={8}>
-              <h2>Gates Visualized</h2>       
-              <ResponsiveContainer height='100%' width='100%' aspect={4.0 / 3.0}>
-                <LineChart data={data}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <Tooltip />
-                  <Legend verticalAlign="top" height={36} />
-                  <Line name="pv of pages" type="monotone" dataKey="pv" stroke="#8884d8" />
-                  <Line name="uv of pages" type="monotone" dataKey="uv" stroke="#82ca9d" />
-                </LineChart>
-              </ResponsiveContainer>
-            </Col>
-          </Row>  
+          <hr />
         </CardText>
-        <CardText>
+        <CardText style={{ padding: '5px 50px 5px 50px' }}>
           <TextField
-            floatingLabelText="Gate definition"            
+            floatingLabelText="Gate definition"
             hintText="y = 5 * sym_1; sym_2 = y + x"
             errorText=''
             fullWidth={true}
           />
-          <FlatButton fullWidth={true} label="Add Gate" primary={true}/>
-        </CardText>   
+          <FlatButton fullWidth={true} label="Add Gate" primary={true} />
+        </CardText>
       </Card>
     )
   }
@@ -205,8 +224,28 @@ class R1CSToQAPCard extends Component {
           showExpandableButton={true}
         />
         <CardText expandable={true}>
-          This transformation is achieved using <i>Lagrange Interpolation</i>. <a href="https://www.youtube.com/watch?v=vAgKE5wvR4Y">You can find out more about Lagrange Interpolation here</a>
+          This transformation is achieved using <i>Lagrange Interpolation</i>. <a href="https://www.youtube.com/watch?v=vAgKE5wvR4Y">You can find out more about Lagrange Interpolation here.</a>
         </CardText>
+        <CardText>
+        </CardText>
+        <CardText>
+          <Row center="xs">      
+            <Col xs={10}>
+              <h2>QAP Visualization</h2>
+              <ResponsiveContainer height='100%' width='100%' aspect={4.0 / 3.0}>
+                <LineChart data={data}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip />
+                  <Legend verticalAlign="top" height={36} />
+                  <Line name="pv of pages" type="monotone" dataKey="pv" stroke="#8884d8" />
+                  <Line name="uv of pages" type="monotone" dataKey="uv" stroke="#82ca9d" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Col>
+          </Row>
+        </CardText>        
       </Card>
     )
   }
@@ -218,13 +257,13 @@ class App extends Component {
       <div>
         <AppBar
           showMenuIconButton={false}
-          title="A Visual Anatomy of Quadratic Arithmetic Programs"
+          title="QAP Playground"
         />
-        <div style={{ margin: '20px auto 20px auto', maxWidth: '1300px' }}>
+        <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
           <FlattenCard /> <br />
-          <GatesVariableMappingCard /> <br />
-          <GatesDefinitionCard /> <br/>
-          <R1CSToQAPCard/>
+          <VariableMappingCard /> <br />
+          <GatesToR1CSCard /> <br />
+          <R1CSToQAPCard /> <br />                  
         </div>
       </div>
     );

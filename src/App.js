@@ -10,6 +10,16 @@ import TextField from 'material-ui/TextField';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "./styles/app.css"
 
+const data = [
+  { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
+  { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
+  { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
+  { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
+  { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
+  { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
+  { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
+];
+
 // Prevents browser from selecting text
 // When reorganizing mappings
 const noSelectStyle = {
@@ -23,18 +33,23 @@ const noSelectStyle = {
   cursor: 'pointer'
 }
 
-const data = [
-  { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-  { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
+const vectorDisplayStyle = {
+  textAlign: 'center',
+  fontSize: '20px',
+  fontFamily: 'monospace',
+  whiteSpace: 'pre-wrap'
+}
 
-const displayVector = (v) => {
-  return v.reduce((acc, s) => acc + s + ' ', '[ ') + ']'
+const displayVector = (v, spacingNo=1) => {
+  return v.reduce((acc, s) => acc + s + ' '.repeat(spacingNo - (s+'').length + 1), '[ ').slice(0, -spacingNo) + ' ]'
+}
+
+const displayMatrix = (m) => {
+  // Pretify vectors to have the same spacing
+  // Gets max digit length
+  const mdl = m.reduce((a, v) => Math.max(a, v.reduce((b, s) => Math.max(b, (s+'').length), 1)), 1)
+
+  return m.reduce((acc, s) => acc + '\n' + displayVector(s, mdl), '').slice(1)
 }
 
 const displayEquation = (a, b) => {
@@ -46,12 +61,6 @@ const displayEquation = (a, b) => {
       <Col xs={4} style={{ textAlign: 'left' }}>{b}</Col>
     </Row>
   )
-}
-
-const vectorDisplayStyle = {
-  textAlign: 'center',
-  fontSize: '20px',
-  fontFamily: 'monospace'
 }
 
 class FlattenCard extends Component {
@@ -174,9 +183,16 @@ class GatesToR1CSCard extends Component {
           <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
             <Col xs={6}>
-              A = {displayVector([0, 0, 0, 0, 1])}<br />
-              B = {displayVector([0, 0, 0, 0, 1])}<br />
-              C = {displayVector([0, 0, 0, 0, 1])}<br />
+              <Row>
+                <Col xs={3} style={{textAlign: 'right'}}>
+                  A =<br/>
+                  B =<br/>
+                  C =<br/>
+                </Col>
+                <Col xs={9} style={{textAlign: 'left'}}>
+                  { displayMatrix([[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]]) }
+                </Col>
+              </Row>              
             </Col>
             <Col xs={6}>
               {displayEquation('x', '1')} <br />
@@ -186,9 +202,16 @@ class GatesToR1CSCard extends Component {
           <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
             <Col xs={6}>
-              A = {displayVector([1, 0, 0, 0, 5])}<br />
-              B = {displayVector([0, 0, 0, 0, 1])}<br />
-              C = {displayVector([0, 0, 0, 0, 1])}<br />
+              <Row>
+                <Col xs={3} style={{textAlign: 'right'}}>
+                  A =<br/>
+                  B =<br/>
+                  C =<br/>
+                </Col>
+                <Col xs={9} style={{textAlign: 'left'}}>
+                  { displayMatrix([[156,2,3,4,5],[6,74,8,9,10],[11,12,13,14,15]]) }
+                </Col>
+              </Row>              
             </Col>
             <Col xs={6}>
               {displayEquation('x', '2')} <br />
@@ -227,6 +250,24 @@ class R1CSToQAPCard extends Component {
           This transformation is achieved using <i>Lagrange Interpolation</i>. <a href="https://www.youtube.com/watch?v=vAgKE5wvR4Y">You can find out more about Lagrange Interpolation here.</a>
         </CardText>
         <CardText>
+          <Row style={{textAlign: 'center', fontSize: '25px'}}>
+            <Col xs={6}>R1CS</Col>
+            <Col xs={6}>QAP</Col>
+          </Row><br/>
+          <Row style={vectorDisplayStyle}>
+            <Col xs={6}>
+              <Row middle="xs">
+                <Col xs={2}>A =</Col>
+                <Col xs={1} style={{fontSize: '60px', textAlign: 'right'}}>[</Col>
+                <Col xs={8}>
+                  { displayMatrix([[1596,2,3,4,5],[6,74,8,9,10],[11,12,13,14,15]]) }
+                </Col>
+                <Col xs={1} style={{fontSize: '60px', textAlign: 'left'}}>]</Col>
+              </Row>              
+            </Col>
+            <Col xs={6}>
+            </Col>
+          </Row>
         </CardText>
         <CardText>
           <Row center="xs">      

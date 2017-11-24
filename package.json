@@ -8,7 +8,8 @@
     "react-dom": "^16.1.1",
     "react-flexbox-grid": "^2.0.0",
     "react-scripts": "1.0.17",
-    "react-sortable-hoc": "^0.6.8"    
+    "react-sortable-hoc": "^0.6.8",
+    "recharts": "^1.0.0-beta.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -21,8 +22,13 @@
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.2",
     "eslint": "^4.11.0",
+    "eslint-config-standard": "^10.2.1",
     "eslint-plugin-flowtype": "^2.39.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-standard": "^3.0.1",
     "flow-bin": "^0.59.0"
   }
 }

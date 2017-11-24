@@ -7,6 +7,8 @@ import FlatButton from 'material-ui/FlatButton';
 import Toggle from 'material-ui/Toggle';
 import logo from './assets/logo.svg';
 import TextField from 'material-ui/TextField';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "./styles/app.css"
 
@@ -40,8 +42,8 @@ const vectorDisplayStyle = {
   whiteSpace: 'pre-wrap'
 }
 
-const displayVector = (v, spacingNo=1) => {
-  return v.reduce((acc, s) => acc + s + ' '.repeat(spacingNo - (s+'').length + 1), '[ ').slice(0, -spacingNo) + ' ]'
+const displayVector = (v, spacingNo=1) => {  
+  return v.reduce((acc, s, i) => acc + s + ((i === v.length - 1) ? '' : ' '.repeat(spacingNo - (s+'').length + 1)), '[ ') + ' ]'
 }
 
 const displayMatrix = (m) => {
@@ -55,7 +57,7 @@ const displayMatrix = (m) => {
 const displayEquation = (a, b) => {
   // Where a = b
   return (
-    <Row center='xs' style={{ fontFamily: 'monospace' }}>
+    <Row center='xs' style={{ fontFamily: '"Lucida Console", Monaco, monospace' }}>
       <Col xs={4} style={{ textAlign: 'right' }}>{a}</Col>
       <Col xs={1} style={{ textAlign: 'center' }}>=</Col>
       <Col xs={4} style={{ textAlign: 'left' }}>{b}</Col>
@@ -152,7 +154,7 @@ class VariableMappingCard extends Component {
           For more information, check out <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's Post</a> under the section <strong>'Gates to R1CS'</strong>
         </CardText>
         <CardText style={vectorDisplayStyle}>
-          <SortableVector items={this.state.items} onSortEnd={this.onSortEnd} axis='x' />
+          <SortableVector items={this.state.items} onSortEnd={this.onSortEnd} axis='x' />          
         </CardText>
       </Card>
     )
@@ -177,12 +179,13 @@ class GatesToR1CSCard extends Component {
         </CardText>
         <CardText>
           <Row style={{ fontSize: '25px', textAlign: 'center' }}>
-            <Col xs={6}>Vector</Col>
-            <Col xs={6}>Expression</Col>
+            <Col xs={5}>Vector</Col>
+            <Col xs={5}>Expression</Col>
+            <Col xs={2}></Col>
           </Row><br />
           <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
-            <Col xs={6}>
+            <Col xs={5}>
               <Row>
                 <Col xs={3} style={{textAlign: 'right'}}>
                   A =<br/>
@@ -191,17 +194,20 @@ class GatesToR1CSCard extends Component {
                 </Col>
                 <Col xs={9} style={{textAlign: 'left'}}>
                   { displayMatrix([[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]]) }
-                </Col>
+                </Col>                
               </Row>              
             </Col>
-            <Col xs={6}>
+            <Col xs={5}>
               {displayEquation('x', '1')} <br />
               {displayEquation('sym_1', 'x + 1')}
+            </Col>
+            <Col xs={2}>
+              <FlatButton label="remove" secondary={true} />
             </Col>
           </Row>
           <hr />
           <Row middle="xs" style={vectorDisplayStyle}>
-            <Col xs={6}>
+            <Col xs={5}>
               <Row>
                 <Col xs={3} style={{textAlign: 'right'}}>
                   A =<br/>
@@ -213,15 +219,18 @@ class GatesToR1CSCard extends Component {
                 </Col>
               </Row>              
             </Col>
-            <Col xs={6}>
+            <Col xs={5}>
               {displayEquation('x', '2')} <br />
               {displayEquation('A1', '5 * sym_1')}
               {displayEquation('A', '1 + A1')}
               {displayEquation('sym_1', 'A * y')}
             </Col>
+            <Col xs={2}>
+              <FlatButton label="remove" secondary={true} />
+            </Col>
           </Row>
           <hr />
-        </CardText>
+        </CardText>        
         <CardText style={{ padding: '5px 50px 5px 50px' }}>
           <TextField
             floatingLabelText="Gate definition"
@@ -251,25 +260,27 @@ class R1CSToQAPCard extends Component {
         </CardText>
         <CardText>
           <Row style={{textAlign: 'center', fontSize: '25px'}}>
-            <Col xs={6}>R1CS</Col>
+            <Col xs={1}></Col>
+            <Col xs={5}>R1CS</Col>
             <Col xs={6}>QAP</Col>
           </Row><br/>
-          <Row style={vectorDisplayStyle}>
-            <Col xs={6}>
-              <Row middle="xs">
-                <Col xs={2}>A =</Col>
+          <Row middle="xs" style={vectorDisplayStyle}>
+            <Col xs={1} style={{fontSize: '35px'}}>
+              A
+            </Col>
+            <Col xs={5}>
+              <Row middle="xs">                
                 <Col xs={1} style={{fontSize: '60px', textAlign: 'right'}}>[</Col>
-                <Col xs={8}>
+                <Col xs={10}>
                   { displayMatrix([[1596,2,3,4,5],[6,74,8,9,10],[11,12,13,14,15]]) }
                 </Col>
                 <Col xs={1} style={{fontSize: '60px', textAlign: 'left'}}>]</Col>
               </Row>              
             </Col>
             <Col xs={6}>
-              <Row middle="xs">
-                <Col xs={2}>A =</Col>
+              <Row middle="xs">                
                 <Col xs={1} style={{fontSize: '60px', textAlign: 'right'}}>[</Col>
-                <Col xs={8}>
+                <Col xs={10}>
                   { displayMatrix([[15.22,2.34, 3.45],[62.00,74.88,8.88],[11.12,12.23,13.14]]) }
                 </Col>
                 <Col xs={1} style={{fontSize: '60px', textAlign: 'left'}}>]</Col>
@@ -277,6 +288,45 @@ class R1CSToQAPCard extends Component {
             </Col>
           </Row>
         </CardText>
+        <hr/>
+        <CardText>
+          <Row bottom="xs">
+            <Col xs={4} style={{textAlign: 'center', fontSize: '22px'}}>
+              Show me QAP<br/>conversion from R1CS for
+            </Col>
+            <Col xs={4}>
+              <SelectField
+                floatingLabelText="Vector">
+                <MenuItem value={1} primaryText="A" />
+                <MenuItem value={2} primaryText="B" />
+                <MenuItem value={3} primaryText="C" />
+              </SelectField>
+            </Col>
+            <Col xs={4}>
+              <SelectField
+                floatingLabelText="Variable">
+                <MenuItem value={1} primaryText="out" />
+                <MenuItem value={2} primaryText="sym_1" />
+                <MenuItem value={3} primaryText="y" />              
+              </SelectField>
+            </Col>
+          </Row><br/><br/>
+          <Row middle="xs" center="xs" style={{fontSize: '25px', fontFamily: 'monospace'}}>
+            <Col xs={3}>
+              QAP = lagrange
+            </Col>
+            <Col xs={1} style={{fontSize: '50px'}}>
+              (
+            </Col>
+            <Col xs={7}>
+              (1,5),(2,10),(3,5),(1,5),(2,10),(3,5),(1,5),(2,10),(3,5)
+            </Col>
+            <Col xs={1} style={{fontSize: '50px'}}>
+              )
+            </Col>
+          </Row>
+        </CardText>
+        <hr/>
         <CardText>
           <Row center="xs">      
             <Col xs={10}>
@@ -300,6 +350,40 @@ class R1CSToQAPCard extends Component {
   }
 }
 
+class QAPSolutionCard extends Component {
+  render () {
+    return (
+      <Card>
+        <CardTitle
+          title='Checking the QAP'
+          subtitle='To check if we hold a solution to the QAP, we will need to provide it a solution vector (also known as a witness).'
+          actAsExpander={true}
+          showExpandableButton={true}
+        />
+        <CardText expandable={true}>
+          For more information, check out <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post</a> under the section "Checking the QAP".<br/><br/>
+          The solution vector is simply the assignment to all the variables, including the input, output, and internal variables (according to the variable mapping).<br/>
+          Our solution vector is:<br/>
+          <div style={{fontSize: '25px', textAlign: 'center'}}>
+            {displayVector([1, 2, 3, 4, 5])}
+          </div>          
+        </CardText>
+        <CardText style={{textAlign: 'center'}}>
+          <TextField            
+            floatingLabelText="Solution Vector"
+            hintText="[1 2 5 6 8]"
+            errorText=''            
+          /><br/>
+          <FlatButton style={{width: '300px'}} label='Check' primary={true} />
+        </CardText>
+        <CardText style={{textAlign: 'center', fontSize: '20px'}}>
+          No remainders found! Solution is valid :-)
+        </CardText>
+      </Card>
+    )
+  }
+}
+
 class App extends Component {
   render() {
     return (
@@ -312,7 +396,8 @@ class App extends Component {
           <FlattenCard /> <br />
           <VariableMappingCard /> <br />
           <GatesToR1CSCard /> <br />
-          <R1CSToQAPCard /> <br />                  
+          <R1CSToQAPCard /> <br />   
+          <QAPSolutionCard /> <br />               
         </div>
       </div>
     );

@@ -235,7 +235,8 @@ const parseRepresentation = (expression: string, symbols: Object, repI: number =
 }
 
 // Cleans duplicates from symbol
-const cleanSymbols = (symbols: Object): Object => {
+// Also replaces rep_i with out for final out
+const cleanSymbols = (finalExpression: string, symbols: Object): Object => {
   const hasOperation = /[+-/*^]/g
 
   for (var k in symbols) {
@@ -247,10 +248,15 @@ const cleanSymbols = (symbols: Object): Object => {
         if (k2 === k) {
           return acc
         }
-        acc[k2.split(symbols[k]).join(k)] = symbols[k2]
+
+        if (symbols[k2] === finalExpression) {
+          acc[k2.split(symbols[k]).join(k)] = 'out'
+        } else {
+          acc[k2.split(symbols[k]).join(k)] = symbols[k2]
+        }
         return acc
       }, {})
-      return cleanSymbols(newSymbol)
+      return cleanSymbols(finalExpression, newSymbol)
     }
   }
 
@@ -258,17 +264,23 @@ const cleanSymbols = (symbols: Object): Object => {
 }
 
 // Symbols to keep track of the stuff we've parsed
-// let symbols = {} // symbol['x^2+1'] = 'sym_1' or smthg
-// let expression = `x**3 + 5 - (x^2)`.replace(/\s/g, '').split('**').join('^')
-// console.log(expression);
+let symbols = {} // symbol['x^2+1'] = 'sym_1' or smthg
+let expression = `x**3 + 5 - ((x^2) * (x + 5) - (x^5 + 9)) * (x^2)`.replace(/\s/g, '').split('**').join('^')
+console.log(expression);
 
-// // Extract content from brackets
-// [expression, symbols] = parseBrackets(expression, symbols)
+// Extract content from brackets
+[expression, symbols] = parseBrackets(expression, symbols)
 
-// expression = expression.split('(').join('').split(')').join('');
-// [expression, symbols] = parseExponents(expression, symbols);
-// [expression, symbols, _] = parseRepresentation(expression, symbols)
+expression = expression.split('(').join('').split(')').join('');
+[expression, symbols] = parseExponents(expression, symbols);
+[expression, symbols, _] = parseRepresentation(expression, symbols)
+console.log(expression)
 
-// symbols = cleanSymbols(symbols)
+symbols = cleanSymbols(expression, symbols)
 
-// console.log(symbols)
+let symbolsReversed = Object.keys(symbols).reduce((acc, k) => {
+  acc[symbols[k]] = k
+  return acc
+}, {})
+
+console.log(symbolsReversed)

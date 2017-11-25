@@ -1,4 +1,6 @@
 // @flow
+import mathjs from 'mathjs'
+import { zipLongest } from './QAP'
 
 // Finds content within brackets
 const locateBrackets = (expression: string): string[] => {
@@ -263,9 +265,85 @@ const cleanSymbols = (finalExpression: string, symbols: Object): Object => {
   return symbols
 }
 
+// Turns keys to be values
+// And values to be keys
+const reverseObject = (o: Object): Object => {
+  return Object.keys(o).reduce((acc, k) => {
+    acc[o[k]] = k
+    return acc
+  }, {})
+}
+
+const evalSymbolsAt = (x: number, symbols: Object): Object => {
+  // Reverse keys to be values and values
+  // To be keys
+  let symbolsReversed = reverseObject(symbols)
+
+  // Get max i for var_i, rep_i, sym_i
+  const limitI = Object.keys(symbolsReversed).reduce((acc, k) => {
+    if (k !== 'out') {
+      const e = k.split('_')
+      if (parseFloat(e[1]) > acc[e[0]]) {
+        acc[e[0]] = parseFloat(e[1])
+      }
+    }
+    return acc
+  }, {'var': 0, 'sym': 0, 'rep': 0})
+
+  // Eval for var
+  for (let i = 1; i <= limitI.var; i++) {
+    const key = 'var_' + i.toString()
+    const expr = symbolsReversed[key]
+
+    if (expr !== undefined) {
+      symbolsReversed[key] = mathjs.eval(expr.split('x').join(x))
+    }
+  }
+
+  // Eval for sym and repr
+  let evalFinished = false
+
+  while (!evalFinished) {
+    ['sym', 'rep'].forEach((rs) => {
+      const limit = limitI[rs]
+      for (let i = 1; i <= limit; i++) {
+        const key = rs + '_' + i.toString()
+        const expr = symbolsReversed[key]
+
+        if (expr !== undefined) {
+          if (typeof (expr) === 'string') {
+            // Replace 'var_1' etc with real values            
+            const formatExpr = Object.keys(symbolsReversed).reduce((acc, k) => acc.split(k).join(symbolsReversed[k]), expr)
+
+            // Can't eval symbols
+            if (formatExpr.indexOf('_') === -1) {
+              symbolsReversed[key] = mathjs.eval(formatExpr.split('x').join(x))
+            }
+          }
+        }
+      }
+    })
+
+    evalFinished = Object.keys(symbolsReversed).reduce((acc, k) => {
+      if (k !== 'out' && isNaN(parseFloat(symbolsReversed[k]))) {
+        return false
+      }
+      return acc
+    }, true)
+  }
+
+  // Eval out
+  const oExpr = symbolsReversed['out']
+  const formatOExpr = Object.keys(symbolsReversed).reduce((acc, k) => acc.split(k).join(symbolsReversed[k]), oExpr)
+  symbolsReversed['out'] = mathjs.eval(formatOExpr)
+
+  return symbolsReversed
+}
+
 // Symbols to keep track of the stuff we've parsed
+let _
 let symbols = {} // symbol['x^2+1'] = 'sym_1' or smthg
-let expression = `x**3 + 5 - ((x^2) * (x + 5) - (x^5 + 9)) * (x^2)`.replace(/\s/g, '').split('**').join('^')
+let expression = `x**3 + (5)`.replace(/\s/g, '').split('**').join('^')
 console.log(expression);
 
 // Extract content from brackets
@@ -274,13 +352,9 @@ console.log(expression);
 expression = expression.split('(').join('').split(')').join('');
 [expression, symbols] = parseExponents(expression, symbols);
 [expression, symbols, _] = parseRepresentation(expression, symbols)
-console.log(expression)
-
 symbols = cleanSymbols(expression, symbols)
-
-let symbolsReversed = Object.keys(symbols).reduce((acc, k) => {
-  acc[symbols[k]] = k
-  return acc
-}, {})
+let symbolsReversed = reverseObject(symbols)
+let symbolsEvaluated = evalSymbolsAt(10, symbols)
 
 console.log(symbolsReversed)
+console.log(symbolsEvaluated)

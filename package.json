@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "material-ui": "^0.19.4",
+    "mathjs": "^3.17.0",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-flexbox-grid": "^2.0.0",

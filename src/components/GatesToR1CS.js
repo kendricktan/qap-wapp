@@ -30,8 +30,8 @@ class GatesToR1CSCard extends Component {
         </CardText>
         <CardText>
           <Row style={{ fontSize: '25px', textAlign: 'center' }}>
-            <Col xs={5}>Vector</Col>
-            <Col xs={5}>Expression</Col>
+            <Col xs={5}>R1CS</Col>
+            <Col xs={5}>Gates</Col>
             <Col xs={2}></Col>
           </Row><br />
           <hr />

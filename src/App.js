@@ -8,9 +8,9 @@ import R1CSToQAPCard from './components/R1CSToQAP'
 import { parseSymbols, evalSymbolsAt } from './utils/parsing'
 import './styles/app.css'
 
-const defaultExpression = 'x*x*x+5'
+const defaultExpression = 'x^3+x+5'
 const defaultEvalAt = 3
-const defaultSymbols = parseSymbols('x*x*x+5')
+const defaultSymbols = parseSymbols(defaultExpression)
 const defaultEvaluatedSymbols = evalSymbolsAt(defaultEvalAt, defaultSymbols)
 class App extends Component {
   state = {

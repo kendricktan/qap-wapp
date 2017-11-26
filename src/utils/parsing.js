@@ -82,80 +82,24 @@ const parseBrackets = (expression: string, symbols: Object, symI: number = 1): [
 // Once we're done with that,
 // We start off by replacing the x^CONSTANT
 // with a var_i (where _i is just an index)
-const parseExponents = (expression: string, symbols: Object): [string, Object] => {
-  let varI = 1
+const parseExponents = (expression: string): string => {
   const reExponent = /x\^(\d*\.?\d*)/g
 
-  let exponentSymbols = Object.keys(symbols).reduce((acc, e) => {
-    // Get current exponents
-    let exponents = e.match(reExponent)
-
-    if (exponents === null) {
-      return acc
-    }
-
-    // Loop through each exponents and replace with VAR
-    for (let i = 0; i < exponents.length; i++) {
-      let curExponent = exponents[i]
-
-      if (acc[curExponent] === undefined) {
-        acc[curExponent] = 'var_' + (varI++).toString()
-      }
-
-      // At the same time replace variable assignment for all existing exponent
-      // in the current object key
-      const k = Object.keys(acc).reduce((acc2, s) => acc2.split(s).join(acc[s]), e)
-      acc[k] = symbols[e]
-    }
-
-    return acc
-  }, {})
-
-  // Remove duplicates
-  let symbolsCopy = JSON.parse(JSON.stringify(symbols))
-
-  for (var k in exponentSymbols) {
-    const sym = exponentSymbols[k]
-
-    // Update var in expression
-    expression = expression.split(k).join(sym)
-
-    for (var k2 in symbolsCopy) {
-      if (symbolsCopy[k2] === sym) {
-        delete symbolsCopy[k2]
-      }
-    }
-  }
-
-  // Parse the expression
-  const expExponents = expression.match(reExponent)
-
-  if (expExponents !== null) {
-    for (let i = 0; i < expExponents.length; i++) {
-      const exp = expExponents[i]
-
-      if (exponentSymbols[exp] === undefined) {
-        const sym = 'var_' + (varI++).toString()
-        expression = expression.split(exp).join(sym)
-        exponentSymbols[exp] = sym
-      }
-    }
-  }
+  // Get current exponents
+  let exponents = expression.match(reExponent)
 
   // Replace x^N with x*x N times
   // e.g. x^4 = x*x*x*x
-  exponentSymbols = Object.keys(exponentSymbols).reduce((acc, k) => {
-    // if there is x^N
-    if (k.indexOf('^') !== -1) {
-      const xN = k.split('^')
-      acc[xN[0] + '*x'.repeat(parseInt(xN[1]))] = exponentSymbols[k]
-    } else {
-      acc[k] = exponentSymbols[k]
-    }
-    return acc
-  }, {})
+  if (exponents !== null) {
+    for (let i = 0; i < exponents.length; i++) {
+      const exp = exponents[i]
+      const N = exp.split('^')[1]
 
-  return [expression, Object.assign(exponentSymbols, symbolsCopy)]
+      expression = expression.split(exp).join('x' + ('*x').repeat(parseInt(N) - 1))
+    }
+  }
+
+  return expression
 }
 
 const parseExpression = (expression: string, symbols: Object, idx: number, regex: RegExp) => {
@@ -359,16 +303,24 @@ const parseSymbols = (expression: string): Object => {
   let symbols = {} // symbol['x^2+1'] = 'sym_1' or smthg
 
   // Replace whitespace and format '**' to '^'
-  expression = expression.replace(/\s/g, '').split('**').join('^');
+  expression = expression.replace(/\s/g, '').split('**').join('^')
+
+  // Change x^3 -> x*x*x
+  expression = parseExponents(expression, symbols);
 
   // Extract content from brackets
+  // Then remove all brackets
   [expression, symbols] = parseBrackets(expression, symbols)
-
   expression = expression.split('(').join('').split(')').join('');
-  [expression, symbols] = parseExponents(expression, symbols);
+
+  // Parse the operations into representation (follow maths rules)
   [expression, symbols, _] = parseRepresentation(expression, symbols)
+
+  // Remove duplicate symbols
   symbols = cleanSymbols(expression, symbols)
 
+  // Reverse keys to values and vice-versa
+  // (Makes more sense later on)
   let symbolsReversed = reverseObject(symbols)
   symbolsReversed['x'] = 'x'
   symbolsReversed['one'] = 1
@@ -376,7 +328,7 @@ const parseSymbols = (expression: string): Object => {
   return symbolsReversed
 }
 
-const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]): Object => {
+const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]): [number[], number[], number[]] => {
   // ['one', 'x', 'rep_1'] =>
   // {'one': 0, 'x': 1, 'rep_1': 2}
   const mappingIndex = mapping.reduce((acc, k, i) => {
@@ -384,17 +336,77 @@ const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]):
     return acc
   }, {})
 
-  // A * S
-  console.log(mappingIndex)
+  const re = /[+-/*]/g
+
+  // Apply mapping index onto array
+  // Need a separate functoin because
+  // the argument can be a number, in which
+  // case we map it to number on the `one` index
+  const applyMappingIndex = (arr, key, mapping, negative = false) => {
+    if (isNaN(key)) {
+      arr[mapping[key]] = 1
+    } else {
+      arr[mapping['one']] = parseFloat(key) * (negative ? -1 : 1)
+    }
+    return arr
+  }
+
+  return Object.keys(symbols).reduce((acc, k, i) => {
+    // E is the expression
+    let [accA, accB, accC, accE] = acc
+
+    // (A . S) * (B . S) - (C . S) = 0
+    let [A, B, C] = Array.from({length: 3}, i => Array.from({length: mapping.length}, i => 0))
+
+    if (k !== 'x' && k !== 'one') {
+      // Operation
+      const op = symbols[k].match(re)[0]
+
+      // Arguments
+      const args = symbols[k].split(re)
+
+      // construct the r1cs for A, B, C
+
+      // Assign C
+      C[mappingIndex[k]] = 1
+
+      // If operation is '+' or '-'
+      // Then `one` in B is 1
+      // And both assignments are to A
+      if (op === '+' || op === '-') {
+        B[mappingIndex['one']] = 1
+
+        A = applyMappingIndex(A, args[0], mappingIndex)
+        A = applyMappingIndex(A, args[1], mappingIndex, op === '-')
+      } else {
+        A = applyMappingIndex(A, args[0], mappingIndex)
+        B = applyMappingIndex(B, args[1], mappingIndex)
+      }
+
+      accA = accA.concat([A])
+      accB = accB.concat([B])
+      accC = accC.concat([C])
+      accE = accE.concat([[k, symbols[k]]])
+    }
+
+    return [accA, accB, accC, accE]
+  }, [[], [], [], []])
 }
 
-let sym = parseSymbols('x*x*x+5')
-let symEval = evalSymbolsAt(3, sym)
-let mapping = Object.keys(sym).sort()
-
-convertToR1CS(symEval, sym, mapping)
+// let sym = parseSymbols('x^3+x+5')
+// let symEval = evalSymbolsAt(3, sym)
+// let mapping = Object.keys(sym).sort()
+// mapping = ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3']
+// let [A, B, C, E] = convertToR1CS(symEval, sym, mapping)
+// console.log(sym)
+// console.log(mapping)
+// console.log('A', A)
+// console.log('B', B)
+// console.log('C', C)
+// console.log('C', E)
 
 export {
   parseSymbols,
-  evalSymbolsAt
+  evalSymbolsAt,
+  convertToR1CS
 }

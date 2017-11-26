@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card } from 'material-ui/Card'
+import { Card, CardText } from 'material-ui/Card'
 import AppBar from 'material-ui/AppBar'
 import FlattenStep from './components/Flatten'
 import GatesToR1CSCard from './components/GatesToR1CS'
@@ -51,8 +51,15 @@ class App extends Component {
         />
         <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
           <Card>
+            <CardText>
+              <h3>Notice: This playground was created as an education tool to play around with QAPs. Please refer to <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post on QAPs</a> for more info (and to understand whats going on in this playground).</h3>
+            </CardText>
+          </Card> <br/>
+          <Card>
             <FlattenStep setAppState={this.setAppState} setVariableMapping={this.setVariableMapping} {...this.state} />
-            <GatesToR1CSCard R1CSABCE={this.state.R1CSABCE}/>
+            <GatesToR1CSCard R1CSABCE={this.state.R1CSABCE} />
+            <R1CSToQAPCard R1CSABCE={this.state.R1CSABCE} />
+            <QAPSolutionCard {...this.state}/>
           </Card>
         </div>
       </div>

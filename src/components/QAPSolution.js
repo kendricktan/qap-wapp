@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
-import { Card, CardTitle, CardText } from 'material-ui/Card'
+import { CardTitle, CardText } from 'material-ui/Card'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
-import { displayVector } from '../utils/displayMaths'
+import { displayMatrix } from '../utils/displayMaths'
 
 class QAPSolutionCard extends Component {
   render () {
+    const solutionVector = this.props.variableMapping.map((x) => this.props.evaluatedSymbols[x].toString())
+
     return (
-      <Card>
+      <div>
         <CardTitle
-          title='Checking the QAP'
+          title='Step 4. Creating a solution for the QAP (and checking it)'
           subtitle='To check if we hold a solution to the QAP, we will need to provide it a solution vector (also known as a witness).'
           actAsExpander={true}
           showExpandableButton={true}
@@ -18,8 +20,8 @@ class QAPSolutionCard extends Component {
             For more information, check out <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post</a> under the section "Checking the QAP".<br/><br/>
             The solution vector is simply the assignment to all the variables, including the input, output, and internal variables (according to the variable mapping).<br/>
             Our solution vector is:<br/>
-          <div style={{fontSize: '25px', textAlign: 'center'}}>
-            {displayVector([1, 2, 3, 4, 5])}
+          <div style={{fontSize: '18px', textAlign: 'center'}}>
+            { displayMatrix([solutionVector]) }
           </div>
         </CardText>
         <CardText style={{textAlign: 'center'}}>
@@ -33,7 +35,7 @@ class QAPSolutionCard extends Component {
         <CardText style={{textAlign: 'center', fontSize: '20px'}}>
             No remainders found! Solution is valid :-)
         </CardText>
-      </Card>
+      </div>
     )
   }
 }

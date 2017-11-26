@@ -1,4 +1,5 @@
 // @flow
+import { parseQAP } from './parsing'
 
 // Referencing https://github.com/ethereum/research/blob/master/zksnark/qap_creator.py
 

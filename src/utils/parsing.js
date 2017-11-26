@@ -344,9 +344,9 @@ const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]):
   // case we map it to number on the `one` index
   const applyMappingIndex = (arr, key, mapping, negative = false) => {
     if (isNaN(key)) {
-      arr[mapping[key]] = 1
+      arr[mapping[key]] = 1 * (negative ? -1 : 1)
     } else {
-      arr[mapping['one']] = parseFloat(key) * (negative ? -1 : 1)
+      arr[mapping['one']] = parseFloat(key)
     }
     return arr
   }

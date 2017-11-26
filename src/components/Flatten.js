@@ -3,7 +3,7 @@ import { CardTitle, CardText } from 'material-ui/Card'
 import { Row, Col } from 'react-flexbox-grid'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
-import { parseSymbols, evalSymbolsAt } from '../utils/parsing'
+import { parseSymbols, evalSymbolsAt, convertToR1CS } from '../utils/parsing'
 import { displayEquation } from '../utils/displayMaths'
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 
@@ -112,10 +112,13 @@ class FlattenStep extends Component {
             onClick={() => {
               const sym = parseSymbols(this.props.expression)
               const evalSym = evalSymbolsAt(parseFloat(this.props.evalAt), sym)
+              const vm = Object.keys(sym).sort()
+              const r1csabce = convertToR1CS(evalSym, sym, vm)
               this.props.setAppState({
                 evaluatedSymbols: evalSym,
                 symbols: sym,
-                variableMapping: Object.keys(sym).sort()
+                variableMapping: vm,
+                R1CSABCE: r1csabce
               })
             }}
           />

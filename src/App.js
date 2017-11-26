@@ -5,35 +5,40 @@ import FlattenStep from './components/Flatten'
 import GatesToR1CSCard from './components/GatesToR1CS'
 import QAPSolutionCard from './components/QAPSolution'
 import R1CSToQAPCard from './components/R1CSToQAP'
-import { parseSymbols, evalSymbolsAt } from './utils/parsing'
+import { parseSymbols, evalSymbolsAt, convertToR1CS } from './utils/parsing'
 import './styles/app.css'
 
 const defaultExpression = 'x^3+x+5'
 const defaultEvalAt = 3
 const defaultSymbols = parseSymbols(defaultExpression)
 const defaultEvaluatedSymbols = evalSymbolsAt(defaultEvalAt, defaultSymbols)
+const defaultVariableMapping = ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3']
+const defaultR1CSABCE = convertToR1CS(defaultEvaluatedSymbols, defaultSymbols, defaultVariableMapping)
 class App extends Component {
   state = {
     expression: defaultExpression,
     evalAt: defaultEvalAt,
     symbols: defaultSymbols,
     evaluatedSymbols: defaultEvaluatedSymbols,
-    variableMapping: Object.keys(defaultSymbols).sort()
+    variableMapping: ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3'],
+    R1CSABCE: defaultR1CSABCE // A, B, C, E = (A . S) * (B . S) - (C . S) = 0. E = expression
   }
 
-  setAppState = ({expression, evalAt, symbols, evaluatedSymbols, variableMapping}) => {
+  setAppState = ({expression, evalAt, symbols, evaluatedSymbols, variableMapping, R1CSABCE}) => {
     this.setState({
       expression: expression || this.state.expression,
       evalAt: evalAt || this.state.evalAt,
       symbols: symbols || this.state.symbols,
       evaluatedSymbols: evaluatedSymbols || this.state.evaluatedSymbols,
-      variableMapping: variableMapping || this.state.variableMapping
+      variableMapping: variableMapping || this.state.variableMapping,
+      R1CSABCE: R1CSABCE || this.state.R1CSABCE
     })
   }
 
   setVariableMapping = (vm) => {
     this.setState({
-      variableMapping: vm
+      variableMapping: vm,
+      R1CSABCE: convertToR1CS(this.state.evaluatedSymbols, this.state.symbols, vm)
     })
   }
 
@@ -47,7 +52,7 @@ class App extends Component {
         <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
           <Card>
             <FlattenStep setAppState={this.setAppState} setVariableMapping={this.setVariableMapping} {...this.state} />
-            <GatesToR1CSCard/>
+            <GatesToR1CSCard R1CSABCE={this.state.R1CSABCE}/>
           </Card>
         </div>
       </div>

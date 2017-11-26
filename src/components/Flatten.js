@@ -62,26 +62,7 @@ const vectorDisplayStyle = {
   whiteSpace: 'pre-wrap'
 }
 
-const defaultExpression = 'x*x*x+5'
-const defaultEvalAt = 5
-const defaultSymbols = parseSymbols('x*x*x+5')
-const defaultEvaluatedSymbols = evalSymbolsAt(defaultEvalAt, defaultSymbols)
-
 class FlattenStep extends Component {
-  state = {
-    expression: defaultExpression,
-    evalAt: defaultEvalAt,
-    symbols: defaultSymbols,
-    evaluatedSymbols: defaultEvaluatedSymbols,
-    variableMapping: Object.keys(defaultSymbols).sort()
-  }
-
-  setVariableMapping = (vm) => {
-    this.setState({
-      variableMapping: vm
-    })
-  }
-
   render () {
     return (
       <div>
@@ -107,19 +88,19 @@ class FlattenStep extends Component {
             <Col xs={8}>
               <h3>Polynomial Equation</h3>
               <TextField
-                defaultValue={this.state.expression}
+                defaultValue={this.props.expression}
                 fullWidth={true}
                 hintText="x * x^2 + ((x-5) + 10)"
-                onChange={(e) => this.setState({ expression: e.target.value })}
+                onChange={(e) => this.props.setAppState({ expression: e.target.value })}
               />
             </Col>
             <Col xs={4}>
               <h3>Evaluate when `x` is</h3>
               <TextField
-                defaultValue={this.state.evalAt}
+                defaultValue={this.props.evalAt}
                 fullWidth={true}
                 hintText="10"
-                onChange={(e) => this.setState({ evalAt: e.target.value })}
+                onChange={(e) => this.props.setAppState({ evalAt: e.target.value })}
               />
             </Col>
           </Row> <br/>
@@ -129,9 +110,9 @@ class FlattenStep extends Component {
             label={'Flatten and Evaluate'}
             primary={true}
             onClick={() => {
-              const sym = parseSymbols(this.state.expression)
-              const evalSym = evalSymbolsAt(parseFloat(this.state.evalAt), sym)
-              this.setState({
+              const sym = parseSymbols(this.props.expression)
+              const evalSym = evalSymbolsAt(parseFloat(this.props.evalAt), sym)
+              this.props.setAppState({
                 evaluatedSymbols: evalSym,
                 symbols: sym,
                 variableMapping: Object.keys(sym).sort()
@@ -141,19 +122,19 @@ class FlattenStep extends Component {
           <div style={{textAlign: 'center', fontSize: '30px'}}>&#8595;</div>
           <Row>
             <Col xs={9}>
-              <h3>Flattened</h3>
+              <h3>Flattened Gates (Drag and drop to reorder mapping)</h3>
               <div style={vectorDisplayStyle}>
                 <SortableComponent
-                  keys={this.state.variableMapping}
-                  dict={this.state.variableMapping.reduce((acc, k) => {
+                  keys={this.props.variableMapping}
+                  dict={this.props.variableMapping.reduce((acc, k) => {
                     if (k === 'x') {
-                      acc[k] = displayEquation(k, this.state.evaluatedSymbols[k])
+                      acc[k] = displayEquation(k, this.props.evaluatedSymbols[k])
                     } else {
-                      acc[k] = displayEquation(k, this.state.symbols[k])
+                      acc[k] = displayEquation(k, this.props.symbols[k])
                     }
                     return acc
                   }, {})}
-                  setVariableMapping={this.setVariableMapping}
+                  setVariableMapping={this.props.setVariableMapping}
                 />
               </div>
             </Col>
@@ -161,9 +142,9 @@ class FlattenStep extends Component {
               <h3>Evaluation</h3>
               <div style={vectorDisplayStyle}>
                 <SortableComponent
-                  keys={this.state.variableMapping}
-                  dict={this.state.evaluatedSymbols}
-                  setVariableMapping={this.setVariableMapping}
+                  keys={this.props.variableMapping}
+                  dict={this.props.evaluatedSymbols}
+                  setVariableMapping={this.props.setVariableMapping}
                 />
               </div>
             </Col>

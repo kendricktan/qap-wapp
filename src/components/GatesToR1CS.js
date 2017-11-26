@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, CardTitle, CardText } from 'material-ui/Card'
+import { CardTitle, CardText } from 'material-ui/Card'
 import { Row, Col } from 'react-flexbox-grid'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
@@ -15,15 +15,15 @@ const vectorDisplayStyle = {
 class GatesToR1CSCard extends Component {
   render () {
     return (
-      <Card>
+      <div>
         <CardTitle
-          title="Gates to R1CS"
+          title="Step 2. Gates to R1CS"
           subtitle="Each gate poses as a constraint to the R1CS that our solution needs to satisfy."
           actAsExpander={true}
           showExpandableButton={true}
         />
         <CardText expandable={true}>
-            The R1CS is a group of 3 vectors <code>A, B, C</code>. And the solution to an R1CS vector is <code>S</code>, where <code>S</code> must satisfy the equation:
+            The R1CS is a group of 3 vectors <code>A, B, C</code>. And the solution to an R1CS vector is <code>S</code> (our Evaluation from Step 1), where <code>S</code> must satisfy the equation:
           <ul>
             <li><code>(S . A) * (S . B) - (S . C) = 0</code></li>
           </ul>
@@ -91,7 +91,7 @@ class GatesToR1CSCard extends Component {
           />
           <FlatButton fullWidth={true} label="Add Gate" primary={true} />
         </CardText>
-      </Card>
+      </div>
     )
   }
 }

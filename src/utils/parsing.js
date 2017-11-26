@@ -142,6 +142,19 @@ const parseExponents = (expression: string, symbols: Object): [string, Object] =
     }
   }
 
+  // Replace x^N with x*x N times
+  // e.g. x^4 = x*x*x*x
+  exponentSymbols = Object.keys(exponentSymbols).reduce((acc, k) => {
+    // if there is x^N
+    if (k.indexOf('^') !== -1) {
+      const xN = k.split('^')
+      acc[xN[0] + '*x'.repeat(parseInt(xN[1]))] = exponentSymbols[k]
+    } else {
+      acc[k] = exponentSymbols[k]
+    }
+    return acc
+  }, {})
+
   return [expression, Object.assign(exponentSymbols, symbolsCopy)]
 }
 
@@ -298,21 +311,11 @@ const evalSymbolsAt = (x: number, symbols: Object): Object => {
   // Eval for x
   symbolsReversed['x'] = x
 
-  // Eval for var
-  for (let i = 1; i <= limitI.var; i++) {
-    const key = 'var_' + i.toString()
-    const expr = symbolsReversed[key]
-
-    if (expr !== undefined) {
-      symbolsReversed[key] = mathjs.eval(expr.split('x').join(x))
-    }
-  }
-
   // Eval for sym and repr
   let evalFinished = false
 
   while (!evalFinished) {
-    ['sym', 'rep'].forEach((rs) => {
+    ['var', 'sym', 'rep'].forEach((rs) => {
       const limit = limitI[rs]
       for (let i = 1; i <= limit; i++) {
         const key = rs + '_' + i.toString()
@@ -373,10 +376,23 @@ const parseSymbols = (expression: string): Object => {
   return symbolsReversed
 }
 
-// let sym = parseSymbols('x-5*(x^6-(x^2))')
-// let symEval = evalSymbolsAt(3, sym)
-// console.log(sym)
-// console.log(symEval)
+const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]): Object => {
+  // ['one', 'x', 'rep_1'] =>
+  // {'one': 0, 'x': 1, 'rep_1': 2}
+  const mappingIndex = mapping.reduce((acc, k, i) => {
+    acc[k] = i
+    return acc
+  }, {})
+
+  // A * S
+  console.log(mappingIndex)
+}
+
+let sym = parseSymbols('x*x*x+5')
+let symEval = evalSymbolsAt(3, sym)
+let mapping = Object.keys(sym).sort()
+
+convertToR1CS(symEval, sym, mapping)
 
 export {
   parseSymbols,

@@ -295,6 +295,9 @@ const evalSymbolsAt = (x: number, symbols: Object): Object => {
     return acc
   }, {'var': 0, 'sym': 0, 'rep': 0})
 
+  // Eval for x
+  symbolsReversed['x'] = x
+
   // Eval for var
   for (let i = 1; i <= limitI.var; i++) {
     const key = 'var_' + i.toString()
@@ -330,7 +333,7 @@ const evalSymbolsAt = (x: number, symbols: Object): Object => {
     })
 
     evalFinished = Object.keys(symbolsReversed).reduce((acc, k) => {
-      if (k !== 'out' && isNaN(parseFloat(symbolsReversed[k]))) {
+      if (k !== 'out' && k !== 'x' && isNaN(parseFloat(symbolsReversed[k]))) {
         return false
       }
       return acc
@@ -364,11 +367,18 @@ const parseSymbols = (expression: string): Object => {
   symbols = cleanSymbols(expression, symbols)
 
   let symbolsReversed = reverseObject(symbols)
+  symbolsReversed['x'] = 'x'
+  symbolsReversed['one'] = 1
 
   return symbolsReversed
 }
 
-let sym = parseSymbols('(x ^ 3) + 7 + x * 5 - 6')
-let symEval = evalSymbolsAt(3, sym)
-console.log(sym)
-console.log(symEval)
+// let sym = parseSymbols('x-5*(x^6-(x^2))')
+// let symEval = evalSymbolsAt(3, sym)
+// console.log(sym)
+// console.log(symEval)
+
+export {
+  parseSymbols,
+  evalSymbolsAt
+}

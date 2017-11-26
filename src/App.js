@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
+import { Card } from 'material-ui/Card'
 import AppBar from 'material-ui/AppBar'
-import FlattenCard from './components/Flatten'
+import FlattenStep from './components/Flatten'
 import GatesToR1CSCard from './components/GatesToR1CS'
 import QAPSolutionCard from './components/QAPSolution'
 import VariableMappingCard from './components/VariableMapping'
@@ -16,11 +17,9 @@ class App extends Component {
           title="QAP Playground"
         />
         <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
-          <FlattenCard /> <br />
-          <VariableMappingCard /> <br />
-          <GatesToR1CSCard /> <br />
-          <R1CSToQAPCard /> <br />
-          <QAPSolutionCard /> <br />
+          <Card>
+            <FlattenStep />
+          </Card>
         </div>
       </div>
     )

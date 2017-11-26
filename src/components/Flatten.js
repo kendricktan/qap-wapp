@@ -1,41 +1,98 @@
 import React, { Component } from 'react'
-import { Card, CardTitle, CardText } from 'material-ui/Card'
+import { CardTitle, CardText } from 'material-ui/Card'
 import { Row, Col } from 'react-flexbox-grid'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts'
+import { parseSymbols, evalSymbolsAt } from '../utils/parsing'
+import { displayEquation } from '../utils/displayMaths'
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 
-const data = [
-  { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-  { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 }
-]
+const SortableItem = SortableElement(({value}) => (
+  <div style={{
+    position: 'relative',
+    width: '100%',
+    display: 'block',
+    padding: 20,
+    fontSize: '16px',
+    fontFamily: 'monospace',
+    whiteSpace: 'pre-wrap',
+    backgroundColor: '#FFF',
+    borderBottom: '1px solid #EFEFEF',
+    boxSizing: 'border-box',
+    WebkitUserSelect: 'none',
+    height: '10px'
+  }}>{value}</div>
+))
 
-class FlattenCard extends Component {
+const SortableList = SortableContainer(({keys, dict}) => {
+  return (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      maxWidth: '500px',
+      margin: '0 auto',
+      overflow: 'auto',
+      backgroundColor: '#f3f3f3',
+      border: '1px solid #EFEFEF',
+      borderRadius: 3
+    }}>
+      {
+        keys.map((value, index) => (
+          <SortableItem key={`item-${index}`} index={index} value={dict[value]} />
+        ))
+      }
+    </div>
+  )
+})
+
+class SortableComponent extends Component {
+  onSortEnd = ({oldIndex, newIndex}) => {
+    this.props.setVariableMapping(arrayMove(this.props.keys, oldIndex, newIndex))
+  }
+
+  render () {
+    return <SortableList dict={this.props.dict} keys={this.props.keys} onSortEnd={this.onSortEnd} />
+  }
+}
+
+const vectorDisplayStyle = {
+  textAlign: 'center',
+  fontSize: '16px',
+  fontFamily: 'monospace',
+  whiteSpace: 'pre-wrap'
+}
+
+const defaultExpression = 'x*x*x+5'
+const defaultEvalAt = 5
+const defaultSymbols = parseSymbols('x*x*x+5')
+const defaultEvaluatedSymbols = evalSymbolsAt(defaultEvalAt, defaultSymbols)
+
+class FlattenStep extends Component {
+  state = {
+    expression: defaultExpression,
+    evalAt: defaultEvalAt,
+    symbols: defaultSymbols,
+    evaluatedSymbols: defaultEvaluatedSymbols,
+    variableMapping: Object.keys(defaultSymbols).sort()
+  }
+
+  setVariableMapping = (vm) => {
+    this.setState({
+      variableMapping: vm
+    })
+  }
+
   render () {
     return (
-      <Card>
+      <div>
         <CardTitle
-          title="Flattening Expressions and Statements into Gates"
+          title="Step 1. Flattening Expressions and Statements into Gates"
           subtitle="Converts arbitrary statements and expressions into a sequence of statements (a.k.a Logic gates)."
           actAsExpander={true}
           showExpandableButton={true}
         />
         <CardText expandable={true}>
-            These sequence of statements are of two forms:<br />
+          These sequence of statements are of two forms:<br />
           <ul>
             <li>
               <code>x = y</code> (where <code>y</code> can be a variable or a number)
@@ -46,32 +103,75 @@ class FlattenCard extends Component {
           </ul>
         </CardText>
         <CardText>
-          <Row>
-            <Col xs={5}>
-              <div style={{ width: '100%' }}> <TextField style={{ width: '75%' }} hintText="y = x * x" /> <FlatButton style={{ width: '10%' }} label="Remove" secondary={true} /> </div>
-              <div style={{ width: '100%' }}> <TextField style={{ width: '75%' }} hintText="y = x * x" /> <FlatButton style={{ width: '10%' }} label="Remove" secondary={true} /> </div>
-              <div style={{ width: '100%' }}> <TextField style={{ width: '75%' }} hintText="y = x * x" /> <FlatButton style={{ width: '10%' }} label="Remove" secondary={true} /> </div>
-              <br />
-              <FlatButton fullWidth={true} label="Add Expression" primary={true} />
+          <Row middle="xs">
+            <Col xs={8}>
+              <h3>Polynomial Equation</h3>
+              <TextField
+                defaultValue={this.state.expression}
+                fullWidth={true}
+                hintText="x * x^2 + ((x-5) + 10)"
+                onChange={(e) => this.setState({ expression: e.target.value })}
+              />
             </Col>
-            <Col xs={7}>
-              <ResponsiveContainer height='100%' width='100%' aspect={4.0 / 3.0}>
-                <LineChart data={data}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <Tooltip />
-                  <Legend verticalAlign="top" height={36} />
-                  <Line name="pv of pages" type="monotone" dataKey="pv" stroke="#8884d8" />
-                  <Line name="uv of pages" type="monotone" dataKey="uv" stroke="#82ca9d" />
-                </LineChart>
-              </ResponsiveContainer>
+            <Col xs={4}>
+              <h3>Evaluate when `x` is</h3>
+              <TextField
+                defaultValue={this.state.evalAt}
+                fullWidth={true}
+                hintText="10"
+                onChange={(e) => this.setState({ evalAt: e.target.value })}
+              />
+            </Col>
+          </Row> <br/>
+          <div style={{textAlign: 'center', fontSize: '30px'}}>&#8595;</div>
+          <FlatButton
+            fullWidth={true}
+            label={'Flatten and Evaluate'}
+            primary={true}
+            onClick={() => {
+              const sym = parseSymbols(this.state.expression)
+              const evalSym = evalSymbolsAt(parseFloat(this.state.evalAt), sym)
+              this.setState({
+                evaluatedSymbols: evalSym,
+                symbols: sym,
+                variableMapping: Object.keys(sym).sort()
+              })
+            }}
+          />
+          <div style={{textAlign: 'center', fontSize: '30px'}}>&#8595;</div>
+          <Row>
+            <Col xs={9}>
+              <h3>Flattened</h3>
+              <div style={vectorDisplayStyle}>
+                <SortableComponent
+                  keys={this.state.variableMapping}
+                  dict={this.state.variableMapping.reduce((acc, k) => {
+                    if (k === 'x') {
+                      acc[k] = displayEquation(k, this.state.evaluatedSymbols[k])
+                    } else {
+                      acc[k] = displayEquation(k, this.state.symbols[k])
+                    }
+                    return acc
+                  }, {})}
+                  setVariableMapping={this.setVariableMapping}
+                />
+              </div>
+            </Col>
+            <Col xs={3}>
+              <h3>Evaluation</h3>
+              <div style={vectorDisplayStyle}>
+                <SortableComponent
+                  keys={this.state.variableMapping}
+                  dict={this.state.evaluatedSymbols}
+                  setVariableMapping={this.setVariableMapping}
+                />
+              </div>
             </Col>
           </Row>
         </CardText>
-      </Card>
+      </div>
     )
   }
 }
 
-export default FlattenCard
+export default FlattenStep

@@ -4,6 +4,7 @@ import { Row, Col } from 'react-flexbox-grid'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
 import { parseSymbols, evalSymbolsAt, convertToR1CS } from '../utils/parsing'
+import { createSolutionPolynomials, r1csToQap } from '../utils/QAP'
 import { displayEquation } from '../utils/displayMaths'
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 
@@ -104,7 +105,6 @@ class FlattenStep extends Component {
               />
             </Col>
           </Row> <br/>
-          <div style={{textAlign: 'center', fontSize: '30px'}}>&#8595;</div>
           <FlatButton
             fullWidth={true}
             label={'Flatten and Evaluate'}
@@ -114,11 +114,17 @@ class FlattenStep extends Component {
               const evalSym = evalSymbolsAt(parseFloat(this.props.evalAt), sym)
               const vm = Object.keys(sym).sort()
               const r1csabce = convertToR1CS(evalSym, sym, vm)
+              const witness = vm.map(x => evalSym[x])
+              const [Ap, Bp, Cp, Z] = r1csToQap(r1csabce[0], r1csabce[1], r1csabce[2])
+              const [Apoly, Bpoly, Cpoly, solution] = createSolutionPolynomials(witness, Ap, Bp, Cp)
               this.props.setAppState({
                 evaluatedSymbols: evalSym,
                 symbols: sym,
                 variableMapping: vm,
-                R1CSABCE: r1csabce
+                R1CSABCE: r1csabce,
+                witness,
+                solution,
+                Z
               })
             }}
           />

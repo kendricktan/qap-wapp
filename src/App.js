@@ -5,8 +5,11 @@ import FlattenStep from './components/Flatten'
 import GatesToR1CSCard from './components/GatesToR1CS'
 import QAPSolutionCard from './components/QAPSolution'
 import R1CSToQAPCard from './components/R1CSToQAP'
+import CheckingSolutionCard from './components/CheckingSolution'
 import { parseSymbols, evalSymbolsAt, convertToR1CS } from './utils/parsing'
+import { createSolutionPolynomials, r1csToQap } from './utils/QAP'
 import './styles/app.css'
+import Logo from './assets/logo.svg'
 
 const defaultExpression = 'x^3+x+5'
 const defaultEvalAt = 3
@@ -14,6 +17,10 @@ const defaultSymbols = parseSymbols(defaultExpression)
 const defaultEvaluatedSymbols = evalSymbolsAt(defaultEvalAt, defaultSymbols)
 const defaultVariableMapping = ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3']
 const defaultR1CSABCE = convertToR1CS(defaultEvaluatedSymbols, defaultSymbols, defaultVariableMapping)
+const defaultWitness = defaultVariableMapping.map(x => defaultEvaluatedSymbols[x].toString())
+const [Ap, Bp, Cp, Z] = r1csToQap(defaultR1CSABCE[0], defaultR1CSABCE[1], defaultR1CSABCE[2])
+const [Apoly, Bpoly, Cpoly, defaultSolution] = createSolutionPolynomials(defaultWitness, Ap, Bp, Cp)
+
 class App extends Component {
   state = {
     expression: defaultExpression,
@@ -21,17 +28,15 @@ class App extends Component {
     symbols: defaultSymbols,
     evaluatedSymbols: defaultEvaluatedSymbols,
     variableMapping: ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3'],
-    R1CSABCE: defaultR1CSABCE // A, B, C, E = (A . S) * (B . S) - (C . S) = 0. E = expression
+    R1CSABCE: defaultR1CSABCE, // A, B, C, E = (A . S) * (B . S) - (C . S) = 0. E = expression
+    witness: defaultWitness,
+    solution: defaultSolution,
+    Z: Z
   }
 
-  setAppState = ({expression, evalAt, symbols, evaluatedSymbols, variableMapping, R1CSABCE}) => {
+  setAppState = ({...state}) => {
     this.setState({
-      expression: expression || this.state.expression,
-      evalAt: evalAt || this.state.evalAt,
-      symbols: symbols || this.state.symbols,
-      evaluatedSymbols: evaluatedSymbols || this.state.evaluatedSymbols,
-      variableMapping: variableMapping || this.state.variableMapping,
-      R1CSABCE: R1CSABCE || this.state.R1CSABCE
+      ...state
     })
   }
 
@@ -47,12 +52,12 @@ class App extends Component {
       <div>
         <AppBar
           showMenuIconButton={false}
-          title="QAP Playground"
+          title='QAP Playground'
         />
         <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
           <Card>
             <CardText>
-              <h3>Notice: This playground was created as an education tool to play around with QAPs. Please refer to <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post on QAPs</a> for more info (and to understand whats going on in this playground).</h3>
+              <h3>Notice: This playground was created as an education tool to play around with QAPs. Please refer to <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post on QAPs</a> for more info.</h3>
             </CardText>
           </Card> <br/>
           <Card>
@@ -60,6 +65,7 @@ class App extends Component {
             <GatesToR1CSCard R1CSABCE={this.state.R1CSABCE} />
             <R1CSToQAPCard R1CSABCE={this.state.R1CSABCE} />
             <QAPSolutionCard {...this.state}/>
+            <CheckingSolutionCard {...this.state}/>
           </Card>
         </div>
       </div>

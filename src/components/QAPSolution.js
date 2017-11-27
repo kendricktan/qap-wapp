@@ -1,39 +1,32 @@
 import React, { Component } from 'react'
 import { CardTitle, CardText } from 'material-ui/Card'
-import TextField from 'material-ui/TextField'
-import FlatButton from 'material-ui/FlatButton'
-import { displayMatrix } from '../utils/displayMaths'
+import { createSolutionPolynomials, r1csToQap } from '../utils/QAP'
+import { displayMatrix, displayVector } from '../utils/displayMaths'
 
 class QAPSolutionCard extends Component {
   render () {
-    const solutionVector = this.props.variableMapping.map((x) => this.props.evaluatedSymbols[x].toString())
-
     return (
       <div>
         <CardTitle
-          title='Step 4. Creating a solution for the QAP (and checking it)'
-          subtitle='To check if we hold a solution to the QAP, we will need to provide it a solution vector (also known as a witness).'
+          title='Step 4. Creating a solution for the QAP'
+          subtitle='To create a polynomial solution for the QAP, we will need to provide it a witness (also known as a solution vector).'
           actAsExpander={true}
           showExpandableButton={true}
         />
         <CardText expandable={true}>
-            For more information, check out <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post</a> under the section "Checking the QAP".<br/><br/>
-            The solution vector is simply the assignment to all the variables, including the input, output, and internal variables (according to the variable mapping).<br/>
-            Our solution vector is:<br/>
-          <div style={{fontSize: '18px', textAlign: 'center'}}>
-            { displayMatrix([solutionVector]) }
-          </div>
-        </CardText>
-        <CardText style={{textAlign: 'center'}}>
-          <TextField
-            floatingLabelText="Solution Vector"
-            hintText="[1 2 5 6 8]"
-            errorText=''
-          /><br/>
-          <FlatButton style={{width: '300px'}} label='Check' primary={true} />
-        </CardText>
-        <CardText style={{textAlign: 'center', fontSize: '20px'}}>
-            No remainders found! Solution is valid :-)
+          The witness is simply the assignment to all the variables, including the input, output, and internal variables (according to the variable mapping).<br/>
+          Our witness (<code>S</code>) is:<br/>
+          <div style={{fontSize: '20px', textAlign: 'center'}}>
+            { displayMatrix([this.props.witness], false) }
+          </div><br/>
+          Our polynomial solution <code>(A . S) * (B . S) - (C . S)</code> in vector format is:<br/>
+          <div style={{fontSize: '20px', textAlign: 'center'}}>
+            { displayMatrix([this.props.solution], false) }
+          </div><br/><br/>
+          <code>Z</code> in <code>(A . S) * (B . S) - (C . S) = H * (Z . S)</code>:<br/>
+          <div style={{fontSize: '20px', textAlign: 'center'}}>
+            { displayMatrix([this.props.Z.map(x => x.toFixed(2))], false) }
+          </div><br/><br/>
         </CardText>
       </div>
     )

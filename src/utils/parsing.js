@@ -368,6 +368,9 @@ const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]):
       // construct the r1cs for A, B, C
 
       // Assign C
+      if (mappingIndex[k] === undefined) {
+        console.log(k)
+      }
       C[mappingIndex[k]] = 1
 
       // If operation is '+' or '-'
@@ -393,17 +396,16 @@ const convertToR1CS = (evalSymbols: Object, symbols: Object, mapping: string[]):
   }, [[], [], [], []])
 }
 
-// let sym = parseSymbols('x^3+x+5')
+// let sym = parseSymbols('x*x*x*x*x*x*x-6')
 // let symEval = evalSymbolsAt(3, sym)
 // let mapping = Object.keys(sym).sort()
-// mapping = ['one', 'x', 'out', 'rep_1', 'rep_2', 'rep_3']
 // let [A, B, C, E] = convertToR1CS(symEval, sym, mapping)
-// console.log(sym)
 // console.log(mapping)
+// console.log('R', mapping.map(x => symEval[x]))
 // console.log('A', A)
 // console.log('B', B)
 // console.log('C', C)
-// console.log('C', E)
+// console.log('E', E)
 
 export {
   parseSymbols,

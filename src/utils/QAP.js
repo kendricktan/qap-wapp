@@ -83,7 +83,9 @@ const lagrangeInterpolation = (poly: polynomial): polynomial => {
   const p: polynomial = poly.reduce((acc, x, i) => addPoly(acc, mkSingleton(i + 1, x, poly.length)), [])
 
   for (let i = 0; i < poly.length; i++) {
-    if (Math.abs(evalPoly(p, i + 1) - poly[i]) > 10 ** -10) {
+    // -5 because JavaScript and floating point values
+    // Don't work well
+    if (Math.abs(evalPoly(p, i + 1) - poly[i]) > 10 ** -5) {
       throw new Error('Error calculating lagrange: ' + (p, evalPoly(p, i), i + 1))
     }
   }
@@ -115,7 +117,11 @@ const createSolutionPolynomials = (r: polynomial, newA: matrix, newB: matrix, ne
   const H: polynomial = subtractPoly(multiplyPoly(Apoly, Bpoly), Cpoly)
 
   for (let i = 1; i < newA[0].length + 1; i++) {
-    if (Math.abs(evalPoly(H, i) > 10 ** -10)) {
+    // 10 ** -5 cause javascript and floating point maths don't work well
+    if (Math.abs(evalPoly(H, i) > 10 ** -5)) {
+      console.log('Evaluation: ', evalPoly(H, i))
+      console.log('H: ', H)
+      console.log('I: ', i)
       throw new Error('Error creating poly solution: ' + (evalPoly(H, i), i))
     }
   }

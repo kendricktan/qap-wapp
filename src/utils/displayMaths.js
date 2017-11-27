@@ -2,14 +2,15 @@ import React from 'react'
 import { Row, Col } from 'react-flexbox-grid'
 
 const displayVector = (v, spacingNo = 1) => {
-  return v.reduce((acc, s, i) => acc + s + ((i === v.length - 1) ? '' : ' '.repeat(spacingNo - (s + '').length + 1)), '[ ') + ' ]'
+  return v.reduce((acc, s, i) => acc + s + ((i === v.length - 1) ? '' : '\xa0'.repeat(Math.max(1, spacingNo - (s + '').length + 1))), '[\xa0') + '\xa0]'
 }
 
-const displayMatrix = (m) => {
+const displayMatrix = (m, dynamicSpacing = true) => {
   // Pretify vectors to have the same spacing
   // Gets max digit length
-  const mdl = m.reduce((a, v) => Math.max(a, v.reduce((b, s) => Math.max(b, (s + '').length), 1)), 1)
+  const mdl = dynamicSpacing ? m.reduce((a, v) => Math.max(a, v.reduce((b, s) => Math.max(b, (s + '').length), 1)), 1) : 1
 
+  // Slice 1 to remove first newline
   return m.reduce((acc, s) => acc + '\n' + displayVector(s, mdl), '').slice(1)
 }
 

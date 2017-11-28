@@ -2,7 +2,7 @@ import React from 'react'
 import { Row, Col } from 'react-flexbox-grid'
 
 const displayVector = (v, spacingNo = 1) => {
-  return v.reduce((acc, s, i) => acc + s + ((i === v.length - 1) ? '' : '\xa0'.repeat(Math.max(1, spacingNo - (s + '').length + 1))), '[\xa0') + '\xa0]'
+  return v.reduce((acc, s, i) => acc + s + ((i === v.length - 1) ? '' : ' '.repeat(Math.max(1, spacingNo - (s + '').length + 1))), '[ ') + ' ]'
 }
 
 const displayMatrix = (m, dynamicSpacing = true) => {

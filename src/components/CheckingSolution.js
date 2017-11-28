@@ -19,17 +19,17 @@ class CheckingSolutionCard extends Component {
           subtitle='The solution is valid for our constructed QAP if it yields no remainder after being divided by Z. You can test a solution against the constructed QAP from above using the tools below:'
         />
         <CardText>
-          <h4>Note: Any slight change in the witness WILL make the solution invalid (e.g. rounding to nearest decimal place).</h4>
+          <h4>Note: Any slight change in the solution WILL make the solution invalid (e.g. rounding to nearest decimal place).</h4>
           <span style={{color: this.state.success ? 'green' : 'red'}}>{ this.state.outputText }</span>
         </CardText>
         <CardText>
           <TextField
             onChange={(e) => this.setState({ vectorTxt: e.target.value })}
             hintText="[-25.0 3.0 5.0 9.0 -5.0]"
-            floatingLabelText="Witness Vector"
+            floatingLabelText="Solution Vector: (A. S) * (B. S) - (C . S)"
             fullWidth={true}/><br/>
           <FlatButton
-            label="Check Witness"
+            label="Check Solution"
             primary={true}
             fullWidth={true}
             onClick={() => {
@@ -41,10 +41,10 @@ class CheckingSolutionCard extends Component {
                 })
                 return
               }
-
               const [quot, rem] = divPoly(sol, this.props.Z)
               for (let i in rem) {
                 if (rem[i] > 10 ** -10) {
+                  console.log('[Error] Evaluation (should be 0):', rem[i], ' At index: ', i)
                   this.setState({
                     success: false,
                     outputText: 'Invalid solution, remainder found'
@@ -54,7 +54,7 @@ class CheckingSolutionCard extends Component {
               }
               this.setState({
                 success: true,
-                outputText: 'Solution valid! :-)'
+                outputText: 'Solution is valid! :-)'
               })
             }}
           />

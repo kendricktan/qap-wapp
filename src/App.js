@@ -54,7 +54,7 @@ class App extends Component {
           showMenuIconButton={false}
           title='QAP Playground'
         />
-        <div style={{ margin: '20px auto 20px auto', maxWidth: '1000px' }}>
+        <div style={{ margin: '20px auto 20px auto', minWidth: '750px', maxWidth: '1000px' }}>
           <Card>
             <CardText>
               <h3>Notice: This playground was created as an education tool to play around with QAPs. Please refer to <a href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Vitalik's post on QAPs</a> for more info.</h3>
